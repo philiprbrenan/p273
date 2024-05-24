@@ -1,0 +1,51 @@
+# Test 2024-05-24 at 02:11:06
+
+name: Python 2.7.3 from Source with PostgreSQL
+
+on:
+  push:
+    paths:
+      - '**/main.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Update
+      run: |
+        sudo apt-get update
+
+    - name: Install Pip
+      run: |
+        sudo apt install -y python2.7
+        sudo python2.7 get-pip.py
+
+    - name: Install SQLAlchemy
+      run: |
+        sudo pip install SQLAlchemy
+
+    - name: Install psycopg2-binary
+      run: |
+        sudo pip install psycopg2-binary
+
+    - name: Postgres
+      run: |
+        sudo apt-get install -y postgresql postgresql-contrib libpq-dev
+
+    - name: Verify Python
+      run: |
+        python2.7 --version
+
+    - name: Set up PostgreSQL
+      run: |
+        sudo service postgresql start
+        sudo -u postgres psql -c "CREATE USER myuser WITH PASSWORD 'mypassword';"
+        sudo -u postgres psql -c "CREATE DATABASE mydb OWNER myuser;"
+
+    - name: Run Python script
+      run: |
+        python2.7 test.py
